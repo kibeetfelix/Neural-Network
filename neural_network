@@ -19,13 +19,18 @@ Y = np.eye(10)[ytr]
 
 # Step 5: Initialize neural network
 np.random.seed(0)
-lr = 1.0
+lr = 0.5
+# lr = 1.0
 
-W1, b1 = np.random.randn(64, 32) * 0.1, np.zeros(32)
-W2, b2 = np.random.randn(32, 10) * 0.1, np.zeros(10)
+# W1, b1 = np.random.randn(64, 32) * 0.1, np.zeros(32)
+# W2, b2 = np.random.randn(32, 10) * 0.1, np.zeros(10)
+
+W1, b1 = np.random.randn(64, 64) * 0.1, np.zeros(64)
+W2, b2 = np.random.randn(64, 10) * 0.1, np.zeros(10)
 
 # Step 6: Train the neural network
-for step in range(300):
+# for step in range(300):
+for step in range(500):
 
     # Forward propagation
     h = np.maximum(0, Xtr @ W1 + b1)
