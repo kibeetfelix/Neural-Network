@@ -1,0 +1,110 @@
+
+import numpy as np
+from sklearn.datasets import load_digits
+
+# Step 1: Load the dataset
+X, y = load_digits(return_X_y=True)
+X = X / 16.0
+
+# Step 2: Shuffle the dataset
+i = np.random.RandomState(1).permutation(len(X))
+X, y = X[i], y[i]
+
+# Step 3: Split into training and testing data
+Xtr, ytr = X[:1500], y[:1500]
+Xte, yte = X[1500:], y[1500:]
+
+# Step 4: One-hot encoding
+Y = np.eye(10)[ytr]
+
+# Step 5: Initialize neural network
+np.random.seed(0)
+lr = 1.0
+
+W1, b1 = np.random.randn(64, 32) * 0.1, np.zeros(32)
+W2, b2 = np.random.randn(32, 10) * 0.1, np.zeros(10)
+
+# Step 6: Train the neural network
+for step in range(300):
+
+    # Forward propagation
+    h = np.maximum(0, Xtr @ W1 + b1)
+
+    p = np.exp(h @ W2 + b2)
+    p /= p.sum(axis=1, keepdims=True)
+
+    # Backpropagation
+    d2 = (p - Y) / len(Xtr)
+    d1 = (d2 @ W2.T) * (h > 0)
+
+    # Update weights and biases
+    W2 -= lr * (h.T @ d2)
+    b2 -= lr * d2.sum(axis=0)
+
+    W1 -= lr * (Xtr.T @ d1)
+    b1 -= lr * d1.sum(axis=0)
+
+# Step 7: Make predictions
+pred = (
+    np.maximum(0, Xte @ W1 + b1) @ W2 + b2
+).argmax(axis=1)
+
+# Step 8: Calculate accuracy
+accuracy = (pred == yte).mean()
+
+print("Neural Network Training Completed")
+print("Training samples:", len(Xtr))
+print("Testing samples:", len(Xte))
+print("Correct predictions:", (pred == yte).sum())
+print(f"Test Accuracy: {accuracy:.2%}")
+
+
+import matplotlib.pyplot as plt
+
+# Step 9: Identify correct and incorrect predictions
+
+correct_indices = np.where(pred == yte)[0]
+incorrect_indices = np.where(pred != yte)[0]
+
+print("\nCorrect predictions:", len(correct_indices))
+print("Incorrect predictions:", len(incorrect_indices))
+
+# Step 10: Display correctly classified digits
+
+plt.figure(figsize=(12, 6))
+
+for i, index in enumerate(correct_indices[:12]):
+    plt.subplot(3, 4, i + 1)
+
+    # Reshape image into 8x8 pixels
+    image = Xte[index].reshape(8, 8)
+
+    plt.imshow(image, cmap="gray")
+    plt.title(
+        f"Actual: {yte[index]}\nPredicted: {pred[index]}"
+    )
+    plt.axis("off")
+
+plt.suptitle("Correctly Classified Handwritten Digits")
+plt.tight_layout()
+plt.show()
+
+
+# Step 11: Display incorrectly classified digits
+
+plt.figure(figsize=(12, 6))
+
+for i, index in enumerate(incorrect_indices[:12]):
+    plt.subplot(3, 4, i + 1)
+
+    image = Xte[index].reshape(8, 8)
+
+    plt.imshow(image, cmap="gray")
+    plt.title(
+        f"Actual: {yte[index]}\nPredicted: {pred[index]}"
+    )
+    plt.axis("off")
+
+plt.suptitle("Incorrectly Classified Handwritten Digits")
+plt.tight_layout()
+plt.show()
